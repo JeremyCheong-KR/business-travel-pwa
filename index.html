@@ -30,23 +30,38 @@
 
   <!-- Signature element: boarding-pass style origin/destination ticket -->
   <section class="ticket" aria-label="출발지와 목적지">
-    <div class="ticket-field">
-      <label for="origin">출발지</label>
-      <input id="origin" type="text" inputmode="text" autocomplete="off" placeholder="예: 서울" />
-    </div>
+    <div class="ticket-row">
+      <div class="ticket-field">
+        <label for="origin">출발지</label>
+        <input id="origin" type="text" inputmode="text" autocomplete="off" placeholder="예: 서울" />
+      </div>
 
-    <button id="swap" class="swap-btn" type="button" aria-label="출발지와 목적지 바꾸기">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-        <path d="M7 7h11l-3-3M17 17H6l3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
+      <button id="swap" class="swap-btn" type="button" aria-label="출발지와 목적지 바꾸기">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M7 7h11l-3-3M17 17H6l3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
 
-    <div class="ticket-field">
-      <label for="destination">목적지</label>
-      <input id="destination" type="text" inputmode="text" autocomplete="off" placeholder="예: 부산" />
+      <div class="ticket-field">
+        <label for="destination">목적지</label>
+        <input id="destination" type="text" inputmode="text" autocomplete="off" placeholder="예: 부산" />
+      </div>
     </div>
 
     <div class="perforation" aria-hidden="true"></div>
+
+    <div class="ticket-meta">
+      <div class="segmented" id="tripTypeGroup" role="group" aria-label="편도 또는 왕복">
+        <button type="button" class="segmented-btn is-active" data-trip="one-way">편도</button>
+        <button type="button" class="segmented-btn" data-trip="round">왕복</button>
+      </div>
+
+      <div class="stepper" role="group" aria-label="출장 일수">
+        <button type="button" class="stepper-btn" id="daysMinus" aria-label="일수 줄이기">&minus;</button>
+        <span class="stepper-value" id="daysValue">당일</span>
+        <button type="button" class="stepper-btn" id="daysPlus" aria-label="일수 늘리기">+</button>
+      </div>
+    </div>
   </section>
 
   <section aria-label="자주 가는 곳">

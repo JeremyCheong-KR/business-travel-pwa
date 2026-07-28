@@ -12,6 +12,10 @@
   const historyList = document.getElementById("historyList");
   const emptyState = document.getElementById("emptyState");
   const clearHistoryBtn = document.getElementById("clearHistory");
+  const tripTypeGroup = document.getElementById("tripTypeGroup");
+  const daysMinus = document.getElementById("daysMinus");
+  const daysPlus = document.getElementById("daysPlus");
+  const daysValue = document.getElementById("daysValue");
 
   const SERVICE_LABEL = {
     ktx: "KTX",
@@ -36,6 +40,42 @@
 
   originInput.addEventListener("focus", () => (lastFocusedField = "origin"));
   destinationInput.addEventListener("focus", () => (lastFocusedField = "destination"));
+
+  // ---------- Trip type (편도/왕복) + 출장 일수 ----------
+  const DAYS_MIN = 1;
+  const DAYS_MAX = 14;
+  let tripType = "one-way"; // "one-way" | "round"
+  let days = 1;
+
+  function daysLabel(n) {
+    return n === 1 ? "당일" : `${n - 1}박 ${n}일`;
+  }
+
+  function renderTripMeta() {
+    daysValue.textContent = daysLabel(days);
+    daysMinus.disabled = days <= DAYS_MIN;
+    daysPlus.disabled = days >= DAYS_MAX;
+  }
+
+  tripTypeGroup.addEventListener("click", (e) => {
+    const btn = e.target.closest(".segmented-btn");
+    if (!btn) return;
+    tripType = btn.dataset.trip;
+    tripTypeGroup
+      .querySelectorAll(".segmented-btn")
+      .forEach((b) => b.classList.toggle("is-active", b === btn));
+  });
+
+  daysMinus.addEventListener("click", () => {
+    days = Math.max(DAYS_MIN, days - 1);
+    renderTripMeta();
+  });
+  daysPlus.addEventListener("click", () => {
+    days = Math.min(DAYS_MAX, days + 1);
+    renderTripMeta();
+  });
+
+  renderTripMeta();
 
   // ---------- Favorite chips ----------
   chipRow.addEventListener("click", (e) => {
@@ -66,16 +106,16 @@
   });
 
   // ---------- Shortcut URL building ----------
-  function tomorrowYYYYMMDD() {
+  function dateYYYYMMDD(offsetDays) {
     const d = new Date();
-    d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate() + offsetDays);
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, "0");
     const day = String(d.getDate()).padStart(2, "0");
     return `${y}${m}${day}`;
   }
 
-  function buildShortcutUrl(service, origin, destination) {
+  function buildShortcutUrl(service, origin, destination, tripType, days) {
     switch (service) {
       case "ktx":
         return "https://www.letskorail.com/";
@@ -85,7 +125,12 @@
         const o = AIRPORT_CODE[origin];
         const d = AIRPORT_CODE[destination];
         if (o && d && o !== d) {
-          return `https://flight.naver.com/flights/domestic/${o}-${d}-${tomorrowYYYYMMDD()}?adult=1&fareType=Y`;
+          const depDate = dateYYYYMMDD(1);
+          if (tripType === "round") {
+            const retDate = dateYYYYMMDD(days); // days=1(당일) -> same-day return
+            return `https://flight.naver.com/flights/domestic/${o}-${d}-${depDate}/${d}-${o}-${retDate}?adult=1&fareType=Y`;
+          }
+          return `https://flight.naver.com/flights/domestic/${o}-${d}-${depDate}?adult=1&fareType=Y`;
         }
         return "https://flight.naver.com/";
       }
@@ -114,10 +159,10 @@
     const destination = destinationInput.value.trim();
 
     if (origin || destination) {
-      addHistoryEntry({ origin, destination, service });
+      addHistoryEntry({ origin, destination, service, tripType, days });
     }
 
-    const url = buildShortcutUrl(service, origin, destination);
+    const url = buildShortcutUrl(service, origin, destination, tripType, days);
     window.open(url, "_blank", "noopener");
   });
 
@@ -136,13 +181,15 @@
     localStorage.setItem(HISTORY_KEY, JSON.stringify(list));
   }
 
-  function addHistoryEntry({ origin, destination, service }) {
+  function addHistoryEntry({ origin, destination, service, tripType, days }) {
     const list = loadHistory();
     const entry = {
       id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
       origin,
       destination,
       service,
+      tripType,
+      days,
       ts: Date.now(),
     };
     // dedupe: drop any earlier entry with the same route+service before unshifting
@@ -179,17 +226,33 @@
       const li = document.createElement("li");
       li.className = "history-item";
 
+      const metaParts = [SERVICE_LABEL[h.service] || h.service];
+      if (h.tripType) metaParts.push(h.tripType === "round" ? "왕복" : "편도");
+      if (h.days) metaParts.push(daysLabel(h.days));
+      metaParts.push(relativeTime(h.ts));
+
       const routeBtn = document.createElement("button");
       routeBtn.type = "button";
       routeBtn.className = "history-route";
       routeBtn.innerHTML = `
         <span class="route">${escapeHtml(h.origin || "?")} → ${escapeHtml(h.destination || "?")}</span>
-        <span class="meta">${SERVICE_LABEL[h.service] || h.service} · ${relativeTime(h.ts)}</span>
+        <span class="meta">${metaParts.map(escapeHtml).join(" · ")}</span>
       `;
       routeBtn.addEventListener("click", () => {
         originInput.value = h.origin || "";
         destinationInput.value = h.destination || "";
         highlightActiveChips();
+
+        if (h.tripType) {
+          tripType = h.tripType;
+          tripTypeGroup
+            .querySelectorAll(".segmented-btn")
+            .forEach((b) => b.classList.toggle("is-active", b.dataset.trip === tripType));
+        }
+        if (h.days) {
+          days = h.days;
+          renderTripMeta();
+        }
       });
 
       const removeBtn = document.createElement("button");

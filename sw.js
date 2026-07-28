@@ -1,4 +1,4 @@
-const CACHE_NAME = "btpwa-v1";
+const CACHE_NAME = "btpwa-v2";
 
 const APP_SHELL = [
   "./",
