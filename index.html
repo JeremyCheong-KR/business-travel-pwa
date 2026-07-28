@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>출장 예약</title>
+<meta name="description" content="출발지·목적지를 저장하고 KTX/SRT/항공/숙박을 한 번에 바로가기하는 출장 준비 도구" />
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#101826" />
+
+<!-- iOS home screen -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="출장예약" />
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+
+<link rel="icon" href="icons/icon-192.png" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app-header">
+    <p class="eyebrow">BUSINESS TRIP</p>
+    <h1>출장 예약</h1>
+  </header>
+
+  <!-- Signature element: boarding-pass style origin/destination ticket -->
+  <section class="ticket" aria-label="출발지와 목적지">
+    <div class="ticket-field">
+      <label for="origin">출발지</label>
+      <input id="origin" type="text" inputmode="text" autocomplete="off" placeholder="예: 서울" />
+    </div>
+
+    <button id="swap" class="swap-btn" type="button" aria-label="출발지와 목적지 바꾸기">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M7 7h11l-3-3M17 17H6l3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <div class="ticket-field">
+      <label for="destination">목적지</label>
+      <input id="destination" type="text" inputmode="text" autocomplete="off" placeholder="예: 부산" />
+    </div>
+
+    <div class="perforation" aria-hidden="true"></div>
+  </section>
+
+  <section aria-label="자주 가는 곳">
+    <p class="section-eyebrow">자주 가는 곳</p>
+    <div class="chip-row" id="chipRow">
+      <button class="chip" type="button" data-city="울산">울산</button>
+      <button class="chip" type="button" data-city="부산">부산</button>
+      <button class="chip" type="button" data-city="아산">아산</button>
+      <button class="chip" type="button" data-city="전주">전주</button>
+      <button class="chip" type="button" data-city="제주">제주</button>
+    </div>
+  </section>
+
+  <section aria-label="바로가기">
+    <p class="section-eyebrow">바로가기</p>
+    <div class="shortcut-grid" id="shortcutGrid">
+      <button class="shortcut" type="button" data-service="ktx">
+        <span class="shortcut-mark">KTX</span>
+        <span class="shortcut-label">KTX</span>
+      </button>
+      <button class="shortcut" type="button" data-service="srt">
+        <span class="shortcut-mark">SRT</span>
+        <span class="shortcut-label">SRT</span>
+      </button>
+      <button class="shortcut" type="button" data-service="air">
+        <span class="shortcut-mark">✈</span>
+        <span class="shortcut-label">항공</span>
+      </button>
+      <button class="shortcut" type="button" data-service="hotel">
+        <span class="shortcut-mark">⌂</span>
+        <span class="shortcut-label">숙박</span>
+      </button>
+      <button class="shortcut" type="button" data-service="kakaot">
+        <span class="shortcut-mark">T</span>
+        <span class="shortcut-label">카카오T</span>
+      </button>
+      <button class="shortcut" type="button" data-service="navertravel">
+        <span class="shortcut-mark">N</span>
+        <span class="shortcut-label">네이버여행</span>
+      </button>
+    </div>
+  </section>
+
+  <section aria-label="최근 출장">
+    <div class="section-head">
+      <p class="section-eyebrow">최근 출장</p>
+      <button id="clearHistory" class="text-btn" type="button">전체 삭제</button>
+    </div>
+    <ul class="history-list" id="historyList"></ul>
+    <p class="empty-state" id="emptyState">아직 저장된 출장이 없어요. 바로가기를 눌러 예약을 시작해보세요.</p>
+  </section>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
